@@ -264,6 +264,8 @@ error_log(">>>>RAMON ignoring spouse = " . $spouseId . " with rootId=" . $rootId
 
 			// call recursion here on each of the children... but remember the returned structure must be ok already
 			foreach( $children as $child ) {
+// ramon-hack 20170206 - don't show suppressed children...
+if ($child['suppress'] == 1) { continue; }
 				$childNode = $this->genTree( $child['personId'], $depth - 1, $options );
 				if ( $childNode ) {
 					$childrenArray[] = $childNode;
@@ -279,6 +281,10 @@ error_log(">>>>RAMON ignoring spouse = " . $spouseId . " with rootId=" . $rootId
 				$savedKids[] = $childrenArray;
 				continue;
 			}
+
+			// TODO: if the root flag is set showStepKids then consider the marriage(s) of the spouse and add the children ONLY
+			// to the chindrenArray.
+
 			$marriageNode = array( "id"=>$rootMarriage->id, "spouseId"=>$spouseId, "spouseName"=>$spouseName,
                 "suppressUnion"=>$suppressUnion, "suppressSpouse"=>$suppressSpouse, "children"=>$childrenArray,
                 "cameFromUnionId"=>$spouseCameFromUnionId );
@@ -288,7 +294,7 @@ error_log(">>>>RAMON ignoring spouse = " . $spouseId . " with rootId=" . $rootId
 
 		// if we have savedKids - they can't be orphaned. we need to add them to a good marriage. or create a dummy union where we can add them
 		if ( count( $savedKids ) > 0 ) {
-			// find a marriage which can take the kdis
+			// find a marriage which can take the kids
 			if ( count( $marriages ) > 0 ) {
 				$mergedKids = $marriages[0]['children'];
 				foreach ( $savedKids as $x => $kid ) {

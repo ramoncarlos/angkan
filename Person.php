@@ -194,7 +194,9 @@ class Person {
 	  			$newGuy->name = $row['name'];
 				if ( $useFormalNames ) {
 					$name = $row['realName'];
-					if ( $row['realName'] == '' ) $name=$row['nickName'];
+					if ( trim($row['realName']) == '' ) $name=$row['nickName'];
+                    // last ditch effort to set the name so it is not just blank
+					if ( trim($name) == '' ) $name=$row['name'];
   					$newGuy->name = $name . ' ' . $row["lastName"];
 				}
 				$newGuy->cameFromUnionId = $row['cameFromUnionId'];
