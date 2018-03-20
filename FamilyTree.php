@@ -445,7 +445,13 @@ if ($child['suppress'] == 1) { continue; }
 		foreach ( $tree['marriages'] as $marriage ) {
             $collapseToSpouseUrl = self::$gentreeUrl . $tree['id'] . '&collapseTo=' . $marriage['spouseId'];
 //			$html .= str_repeat('   ',$gen) . '<li><a href=' . self::$gentreeUrl . $tree['id'] . '">u. ' . $marriage['spouseName'] . '</a>' . "\n";
-			$html .= str_repeat('   ',$gen) . '<li><a href=' . $collapseToSpouseUrl . '">u. ' . $marriage['spouseName'] . '</a>' . "\n";
+
+            $marriageOrUnion = 'm.';
+            if ($marriage['status'] == 'SEPARATED' || $marriage['status'] == 'NEVER_MARRIED' ||
+                $marriage['status'] == 'UNION' || $marriage['status'] == 'u' ) {
+                  $marriageOrUnion = 'u.';
+            }
+			$html .= str_repeat('   ',$gen) . '<li><a href=' . $collapseToSpouseUrl . '">' . $marriageOrUnion . ' ' . $marriage['spouseName'] . '</a>' . "\n";
 			$html .= "\n" . $this->xtree2L2Html( $marriage['children'], $gen );
 			$html .= "\n" . '</li>';
 		}
@@ -467,15 +473,30 @@ if ($child['suppress'] == 1) { continue; }
 				$html .= "\n" . str_repeat('   ',$gen) . str_replace('xxx',$child['id'],str_replace('yyy',$dateOfBirth,$li1)) . $child['name'];
 				if ( isset( $child['marriages'] ) && count( $child['marriages'] )) {
 
-					// TODO: handle multiple marriages..
-					$l2Marriage = reset( $child['marriages']);
-					if ( substr( $l2Marriage['spouseName'],0,1) != '-' ) {
-						$html .= "<br />m. " . $l2Marriage['spouseName'];
-					}
-					$html .= '</a>';
+                    $l2MarriageOrdinal = 0;
+                    foreach ($child['marriages'] as $l2Marriage) {
+		    			if ( substr( $l2Marriage['spouseName'],0,1) != '-' ) {
+
+                            // see if we need to put an other 'dummy' first person for marriages > 1
+                            if ($l2MarriageOrdinal) {
+                				$html .= "\n" . str_repeat('   ',$gen) . str_replace('xxx',$child['id'],str_replace('yyy',$dateOfBirth,$li1)) . '...' ;
+                            }
+                            //
+                            $marriageOrUnion = 'm.';
+                            if ($l2Marriage['status'] == 'SEPARATED' || $l2Marriage['status'] == 'NEVER_MARRIED' ||
+                                $l2Marriage['status'] == 'UNION' || $l2Marriage['status'] == 'u' ) {
+                                $marriageOrUnion = 'u.';
+                            }
+			    			$html .= "<br />" . $marriageOrUnion . ' ' . $l2Marriage['spouseName'];
+				    	}
+					    $html .= '</a>';
 	
-					// now do the l3 children.. (last level) - this has no <ul>s in between. just one ahref after another
-					$html .= "\n" . $this->tree2L3Html( $l2Marriage['children'], $gen );
+    					// TODO: move this into it's own function.
+	    				// now do the l3 children.. (last level) - this has no <ul>s in between. just one ahref after another
+		    			$html .= "\n" . $this->tree2L3Html( $l2Marriage['children'], $gen );
+                        $l2MarriageOrdinal++;
+
+                    }
 
 				} else {
 					$html .= '</a>';
@@ -526,6 +547,7 @@ if ($child['suppress'] == 1) { continue; }
                         $l2MarriageOrdinal++;
 
                     }
+
 				} else {
 					$html .= '</a>';
 				}
