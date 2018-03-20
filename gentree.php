@@ -117,7 +117,13 @@ $tree = $familyTree->genTree( $rootId, 3, $options );
 if ( !$tree ) {
 	echo "\n<br> ERROR: $rootId generated a NULL tree";
 }
-//var_dump( $tree );
+
+/*
+echo "<pre>";
+var_dump( $tree );
+echo "</pre>";
+*/
+
 // $newTree = $familyTree->enforceSuppression( $tree, $suppressionList );
 $tree['isCollapsed'] = $collapseToSpouseId;
 $htmlMeat = $familyTree->tree2Html( $tree );

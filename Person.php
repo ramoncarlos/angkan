@@ -227,6 +227,7 @@ class Person {
 		if ( 1 ) {	// later make this switchable so we can see suppressed marriages for people who choose to do so
 			$sql .= ' AND ( suppress != 1 OR suppress IS NULL ) ';
 		}
+        $sql .= ' ORDER BY ORDINAL';
 		$res = self::queryDB( $sql );
 		if ( $res ) {
 			while ( $row = mysqli_fetch_assoc( $res )) {
@@ -235,6 +236,8 @@ class Person {
   				$newMarriage->personId1 = $row["personId1"];
   				$newMarriage->personId2 = $row["personId2"];
   				$newMarriage->suppress = $row["suppress"];
+  				$newMarriage->status = $row["status"];  // map the status.. m., d., a., u.
+  				$newMarriage->ordinal = $row["ordinal"];
 				$marriages[] = $newMarriage;
 				if ( $stopOnFirst ) break;
 			}
