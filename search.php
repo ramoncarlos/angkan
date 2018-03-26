@@ -3,6 +3,8 @@
 require 'angkan-config.php';
 require 'Person.php';
 
+date_default_timezone_set('America/Los_Angeles');
+
 if ( !isset( $_REQUEST['q'] ) || empty($_REQUEST['q']) ) {
 	$searchStr = "";
 	$personList = array();
@@ -15,8 +17,9 @@ if ( !isset( $_REQUEST['q'] ) || empty($_REQUEST['q']) ) {
 // we may want to reset the $_REQUEST for security purposes at this point.
 
 $personCount = 0;
-if ( is_array( $personList ))
+if ( is_array( $personList )) {
 	$personCount = count( $personList );
+}
 
 //include 'angkanPageHeader.php';
 
@@ -32,11 +35,23 @@ echo "\n<head>";
 echo "\n<style>";
 echo $styleStr;
 echo "\n</style>";
+echo "\n<script src='http://cdnjs.cloudflare.com/ajax/libs/jquery/1.2.6/jquery.min.js'></script>";
+//echo "\n<script src='jquery.tablesorter.js'</script>";
+echo "\n<script src='http://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.17.8/js/jquery.tablesorter.min.js'></script>";
+echo "\n<script src='http://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.17.8/js/jquery.tablesorter.widgets.min.js'></script>";
+
+echo "\n" . "<script type='text/javascript'>
+    $(document).ready( function(){
+            $('#myTable').tablesorter( { sortList : [[1,0], [2,0]], widgets: ['zerbra','columns']} );
+    });" .
+"\n </script>";;
+
 echo "\n</head>";
 echo "\n<body>";
 echo "\n<IMG SRC='images/search_hdr.jpg' width='500' border='0'/>";
 
 // grab the rootId from the referrer if there is one..
+
 if ( isset( $_REQUEST['backRootId'] )) {
 	$backRootId = $_REQUEST['backRootId'];
 } else if ( isset( $_SERVER['HTTP_REFERER'] )) {
@@ -63,10 +78,12 @@ echo "\n<br />";
 
 if ( $personCount > 0 ) {
 
-	echo "\n<table >";
-	echo "\n<tr><td>name</td><td>Formal Name</td><td>DateOfBirth</td></tr>";
+	echo "\n<table id='myTable' class='tablesorter'>";
+	echo "\n<thead><tr><th>id</th><th>name</th><th>Formal Name</th><th>DateOfBirth</th></tr></thead>";
+    echo "\n<tbody>";
 	foreach ( $personList as $person ) {
 		echo "\n <tr>";
+        echo "\n   <td>" . $person->id . "</td>";
 		echo "\n   <td><a href='gentree.php?rootId=" . $person->id . "'>" . $person->name . "</a></td>";
 		$name = $person->realName;
 		if ( empty( $name )) $name = $person->nickName;
@@ -80,6 +97,7 @@ if ( $personCount > 0 ) {
 		echo "<td>$name</td><td>" . $dateOfBirth . "</td>";
 		echo "\n </tr>";
 	}
+    echo "\n</tbody>";
 	echo "\n</table>";
 
 }
